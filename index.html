@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Quiz Generator</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      
+      h1 {
+        text-align: center;
+        padding-bottom: 1rem;
+        margin: 0;
+      }
+      
+      label {
+        display: block;
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+      
+      input[type="file"] {
+        padding: 0.5rem;
+        font-size: 1.2rem;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+      
+      input[type="submit"] {
+        background-color: #0099ff;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+      }
+      
+      form {
+        padding: 1rem;
+        border: 1px solid #ccc;
+        margin-bottom: 1rem;
+      }
+      
+      #quiz {
+        margin-top: 1rem;
+        background-color: #eee;
+        padding: 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      
+      #result {
+        margin-top: 1rem;
+        background-color: #eee;
+        padding: 1rem;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+      }
+      
+      #submit-btn {
+        margin-top: 1rem;
+        background-color: #0099ff;
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        font-size: 1.2rem;
+        cursor: pointer;
+        display: none;
+      }
+      
+      .quiz-question-number {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Quiz Generator</h1>
+    <form action="/quiz-generator" method="post" enctype="multipart/form-data">
+      <label for="file">Select a PDF file:</label>
+      <input type="file" name="file" id="file"><br><br>
+      <input type="submit" value="Generate Quiz">
+    </form>
+    <div class="spinner" style="display: none;">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" alt="Loading" />
+    </div>
+    <br>
+    <div id="quiz"></div>
+    <button id="submit-btn" style="display: none;">Submit</button>
+    <br><br>
+    <div id="result"></div>
+    <script>
+      const form = document.querySelector('form');
+      const quizDiv = document.querySelector('#quiz');
+      const submitBtn = document.querySelector('#submit-btn');
+      const resultDiv = document.querySelector('#result');
+      const spinner = document.querySelector('.spinner');
+
+      form.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const formData = new FormData(form);
+  spinner.style.display = 'block';
+  fetch('/quiz-generator', {
+    method: 'POST',
+    body: formData
+  })
+  .then(response => response.json())
+  .then(data => {
+    let quizHTML = '';
+    data.quiz.forEach((question, index) => {
+      quizHTML += `
+        <h3>${index+1}. ${question.question}</h3>
+        <ul>`;
+      question.options.forEach((option) => {
+        quizHTML += `
+          <li><input type="radio" name="question-${index+1}" value="${option}">${option}</li>`;
+      });
+      quizHTML += `
+        </ul><br>`;
+    });
+    quizDiv.innerHTML = quizHTML;
+    submitBtn.style.display = 'block';
+    spinner.style.display = 'none';
+  })
+  .catch(error => console.error('Error:', error));
+});
+
+submitBtn.addEventListener('click', () => {
+  const answers = {};
+  const questions = document.querySelectorAll('h3');
+  questions.forEach((question, index) => {
+    const questionNumber = (index + 1).toString(); // Convert to string
+    const selectedOption = document.querySelector(`input[name="question-${questionNumber}"]:checked`);
+    if (selectedOption) {
+      answers[questionNumber] = selectedOption.value;
+    } else {
+      answers[questionNumber] = null;
+    }
+  });
+
+  fetch('/check-answers', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ answers: answers })
+  })
+  .then(response => response.json())
+  .then(data => {
+    let resultHTML = '<h2>Results:</h2><ul>';
+    Object.keys(data).forEach((questionNumber) => {
+      const isCorrect = data[questionNumber];
+      resultHTML += `<li>Question ${questionNumber}: ${isCorrect ? 'Correct' : 'Incorrect'}</li>`;
+    });
+    resultHTML += '</ul>';
+    resultDiv.innerHTML = resultHTML;
+  })
+  .catch(error => console.error('Error:', error));
+});
+
+    </script>
+  </body>
+</html>
