@@ -8,6 +8,7 @@ To run this application, follow these steps:
 
     Clone this repository: git clone https://github.com/your-username/pdf-quiz-generator.git
     Move your documents(pdf) to the tmp directory
+    Replace YOUR_API_KEY with your OpenAI API key in the app.py(with " ")
     Install the required packages: pip install -r requirements.txt
     Set the FLASK_APP environment variable to app.py: $env:FLASK_APP = "app.py"     
     Run the application: flask run
