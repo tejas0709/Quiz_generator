@@ -21,7 +21,7 @@ def index():
     return send_file('index.html')
 
 # Set up OpenAI API key
-openai.api_key = "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"
+openai.api_key = "YOUR_API_KEY"
 
 questions = []
 correct_answers = {}  # Initialize the dictionary to store correct answers
