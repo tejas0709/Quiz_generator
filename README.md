@@ -9,16 +9,16 @@ To run this application, follow these steps:
     Clone this repository: git clone https://github.com/your-username/pdf-quiz-generator.git
     Move your documents(pdf) to the tmp directory
     Install the required packages: pip install -r requirements.txt
-    Set the FLASK_APP environment variable to app.py: export FLASK_APP=app.py (Unix/Linux) or set             FLASK_APP="app.py" (Windows)
+    Set the FLASK_APP environment variable to app.py: $env:FLASK_APP = "app.py"     
     Run the application: flask run
-    Open the application in a web browser at http://localhost:5000
+    Open the application in a web browser at http://127.0.0.1:5000
 
 Usage
 
     Upload a PDF file by clicking on the "Choose File" button and selecting the file from your computer.
     Click the "Generate Quiz" button to generate a quiz based on the text from the PDF file.
     Answer the quiz questions by selecting the option you believe to be correct for each question.
-    Click the "Check Answers" button to see which questions you answered correctly and which ones you did not.
+    Click the "Submit" button to see which questions you answered correctly and which ones you did not.
 
 Dependencies
 
