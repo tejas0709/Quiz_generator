@@ -65,7 +65,6 @@ def generate_quiz():
     correct_answers = {}  # Store correct answers in a dictionary
     for i, choice in enumerate(choices):
         question, *options = choice.split("\n")
-        question = question.split(')', 1)[1]  # Remove the question number from the question
         correct_options = []
         for option in options:
             if option.endswith("(Correct)"):
