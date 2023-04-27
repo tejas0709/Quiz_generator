@@ -26,10 +26,9 @@ openai.api_key = os.environ.get('OPENAI_API_KEY')
 questions = []
 correct_answers = {}  # Initialize the dictionary to store correct answers
 
-# Route for generating quiz questions
-@app.route('/quiz-generator', methods=['POST']) 
-def generate_quiz():
-    # Check if the file was submitted
+@app.route('/file-to-text', methods=['POST'])
+def get_text():
+ # Check if the file was submitted
     if 'file' not in request.files:
         abort(400, description='No file was submitted.')
         
@@ -42,9 +41,13 @@ def generate_quiz():
     output_string = BytesIO()
     extract_text_to_fp(file, output_string)
     text = output_string.getvalue().decode('utf-8')
-    
+    return jsonify({"text": text})
+# Route for generating quiz questions
+@app.route('/quiz-generator/', methods=['POST']) 
+def generate_quiz():
+    text = request.json['text']
     # Create prompt with the text
-    prompt_with_text = f"Create a multiple choice quiz based on the following text:\n{text}\nThe quiz should contain 10 questions, each with 4 options. The questions should be relevant and accurate based on the text.\n\nPlease include the correct answer for each question in parentheses after the option. For example, 'A) option 1 (Correct)'.\n"
+    prompt_with_text = f"Create a multiple choice quiz based on the following text:\n{text}\nThe quiz should contain 2 questions, each with 4 options. The questions should be relevant and accurate based on the text.\n\nPlease include the correct answer for each question in parentheses after the option. For example, 'A) option 1 (Correct)'.\n"
 
     # Generate quiz questions with OpenAI API
     try:
@@ -61,7 +64,6 @@ def generate_quiz():
 
     # Extract quiz questions and options from response
     choices = response.choices[0].text.strip().split("\n\n")
-    
     correct_answers = {}  # Store correct answers in a dictionary
     for i, choice in enumerate(choices):
         question, *options = choice.split("\n")
@@ -91,6 +93,7 @@ def check_answers():
         else:
             selected_option = str(selected_option) # Ensure selected_option is a string
             correct_options = session.get('correct_answers', {}).get(str(question_number), [])
+            print(correct_options)
             if selected_option in correct_options:
                 results[str(question_number + 1)] = True
             else:

@@ -98,31 +98,50 @@
       const submitBtn = document.querySelector('#submit-btn');
       const resultDiv = document.querySelector('#result');
       const spinner = document.querySelector('.spinner');
-
-      form.addEventListener('submit', (event) => {
+  function fillHTML(textToRequest){    let htmlComp = ''
+     fetch('/quiz-generator/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ text: textToRequest })
+    }).then(response => response.json()).then(data => {
+      let htmlComp = ''
+      data.quiz.forEach((question, index) => {
+        htmlComp += `
+          <h3>${index+1}. ${question.question}</h3>
+          <ul>`;
+        question.options.forEach((option) => {
+          htmlComp += `
+            <li><input type="radio" name="question-${index+1}" value="${option}">${option}</li>`;
+        });
+        htmlComp += `
+          </ul><br>`;
+      })
+      console.log(htmlComp);
+      quizDiv.innerHTML += htmlComp;
+    });
+  }
+  form.addEventListener('submit', (event) => {
   event.preventDefault();
   const formData = new FormData(form);
   spinner.style.display = 'block';
-  fetch('/quiz-generator', {
+  fetch('/file-to-text', {
     method: 'POST',
     body: formData
   })
   .then(response => response.json())
-  .then(data => {
-    console.log(data);
-    let quizHTML = '';
-    data.quiz.forEach((question, index) => {
-      quizHTML += `
-        <h3>${index+1}. ${question.question}</h3>
-        <ul>`;
-      question.options.forEach((option) => {
-        quizHTML += `
-          <li><input type="radio" name="question-${index+1}" value="${option}">${option}</li>`;
-      });
-      quizHTML += `
-        </ul><br>`;
-    });
-    quizDiv.innerHTML = quizHTML;
+  .then(data =>{
+    var quizHTML = '';
+    console.log(data.text);
+    let partitionSize = 3000;
+    let chunks = data.text.length/partitionSize;
+    for(let i = 0; i < chunks; i++){
+      let chunk = (data.text.substring(i*partitionSize, (i+1)*partitionSize));
+      fillHTML(chunk);
+      console.log(quizHTML)
+    }}).then(() => {
+    //quizDiv.innerHTML = quizHTML;
     submitBtn.style.display = 'block';
     spinner.style.display = 'none';
   })
