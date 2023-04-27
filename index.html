@@ -109,6 +109,7 @@
   })
   .then(response => response.json())
   .then(data => {
+    console.log(data);
     let quizHTML = '';
     data.quiz.forEach((question, index) => {
       quizHTML += `

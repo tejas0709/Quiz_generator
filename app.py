@@ -21,7 +21,7 @@ def index():
     return send_file('index.html')
 
 # Set up OpenAI API key
-openai.api_key = "YOUR_API_KEY"
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
 questions = []
 correct_answers = {}  # Initialize the dictionary to store correct answers
@@ -49,7 +49,7 @@ def generate_quiz():
     # Generate quiz questions with OpenAI API
     try:
         response = openai.Completion.create(
-            engine="text-davinci-003",
+            engine="text-davinci-002",
             prompt=prompt_with_text,
             temperature=0.7,
             max_tokens=2048,
