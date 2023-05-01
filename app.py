@@ -49,7 +49,7 @@ def generate_quiz():
     # Generate quiz questions with OpenAI API
     try:
         response = openai.Completion.create(
-            engine="text-davinci-003",
+            engine="text-davinci-002",
             prompt=prompt_with_text,
             temperature=0.7,
             max_tokens=2048,
